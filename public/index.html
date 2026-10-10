@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Fleet Monitor</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 24px 7%;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .top-bar h2 {
+            margin: 0;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            padding: 11px 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 12px #0f172a0d;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card p {
+            margin: 0 0 12px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .online-number {
+            color: #15803d;
+        }
+
+        .offline-number {
+            color: #dc2626;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 3px 12px #0f172a0d;
+        }
+
+        .panel-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .panel-heading h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        select {
+            padding: 9px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        th {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #64748b;
+            background: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.ONLINE {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.OFFLINE {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        #message {
+            color: #64748b;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 650px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 23px;
+            }
+
+            .panel {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Device Fleet Monitor</h1>
+        <p>Real-time device health and heartbeat monitoring</p>
+    </header>
+
+    <main>
+        <div class="top-bar">
+            <div>
+                <h2>Fleet Overview</h2>
+                <p id="lastUpdated">Loading dashboard...</p>
+            </div>
+
+            <button id="refreshButton" onclick="loadDashboard()">
+                Refresh Data
+            </button>
+        </div>
+
+        <section class="cards">
+            <div class="card">
+                <p>Total Devices</p>
+                <h3 id="totalCount">—</h3>
+            </div>
+
+            <div class="card">
+                <p>Online Devices</p>
+                <h3 id="onlineCount" class="online-number">—</h3>
+            </div>
+
+            <div class="card">
+                <p>Offline Devices</p>
+                <h3 id="offlineCount" class="offline-number">—</h3>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-heading">
+                <h2>Registered Devices</h2>
+
+                <select id="statusFilter" onchange="loadDevices()">
+                    <option value="ALL">All Devices</option>
+                    <option value="ONLINE">Online Only</option>
+                    <option value="OFFLINE">Offline Only</option>
+                </select>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Last Heartbeat</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="deviceTable">
+                        <tr>
+                            <td colspan="4">Loading devices...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="message">Connecting to the server...</p>
+        </section>
+    </main>
+
+    <footer>
+        Mini Device Fleet Monitor · Node.js and Express
+    </footer>
+
+    <script>
+        async function loadDashboard() {
+            const message = document.getElementById("message");
+
+            try {
+                const summaryResponse = await fetch("/summary");
+
+                if (!summaryResponse.ok) {
+                    throw new Error("Could not load fleet summary");
+                }
+
+                const summary = await summaryResponse.json();
+
+                document.getElementById("totalCount").textContent =
+                    summary.total;
+
+                document.getElementById("onlineCount").textContent =
+                    summary.online;
+
+                document.getElementById("offlineCount").textContent =
+                    summary.offline;
+
+                await loadDevices();
+
+                document.getElementById("lastUpdated").textContent =
+                    "Last refreshed: " + new Date().toLocaleTimeString();
+
+                message.textContent = "Dashboard data loaded successfully.";
+            } catch (error) {
+                message.textContent =
+                    "Unable to connect to the server. Make sure it is running.";
+            }
+        }
+
+        async function loadDevices() {
+            const table = document.getElementById("deviceTable");
+            const filter = document.getElementById("statusFilter").value;
+
+            try {
+                const response = await fetch("/devices");
+
+                if (!response.ok) {
+                    throw new Error("Could not load devices");
+                }
+
+                const devices = await response.json();
+
+                const filteredDevices = filter === "ALL"
+                    ? devices
+                    : devices.filter(device => device.status === filter);
+
+                table.replaceChildren();
+
+                if (filteredDevices.length === 0) {
+                    const row = table.insertRow();
+                    const cell = row.insertCell();
+                    cell.colSpan = 4;
+                    cell.textContent = "No devices match this filter.";
+                    return;
+                }
+
+                filteredDevices.forEach(device => {
+                    const row = table.insertRow();
+
+                    const idCell = row.insertCell();
+                    idCell.textContent = device.id;
+
+                    const nameCell = row.insertCell();
+                    nameCell.textContent = device.name;
+
+                    const statusCell = row.insertCell();
+                    const badge = document.createElement("span");
+                    badge.className = "status " + device.status;
+                    badge.textContent = device.status;
+                    statusCell.appendChild(badge);
+
+                    const heartbeatCell = row.insertCell();
+                    heartbeatCell.textContent = device.last_heartbeat
+                        ? new Date(device.last_heartbeat).toLocaleString()
+                        : "Never";
+                });
+            } catch (error) {
+                table.replaceChildren();
+
+                const row = table.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 4;
+                cell.textContent = "Failed to load devices.";
+                throw error;
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>
