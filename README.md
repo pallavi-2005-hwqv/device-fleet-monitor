@@ -168,27 +168,38 @@ The counts reflect the current calculated status of all registered devices.
 - The simulator uses five sample devices to demonstrate device monitoring.
 - Device information is stored in memory during application execution.
 
+## Additional Features Implemented
+
+- **Web Dashboard:** A browser-based interface displaying total, online, and offline device counts, device details, and last heartbeat timestamps.
+- **Device Status Filtering:** Allows users to filter the device table to display all devices, online devices only, or offline devices only.
+- **Interactive Device Simulator:** Simulates five devices sending heartbeats every five seconds. Individual devices can be stopped and resumed to demonstrate offline detection.
+- **Input Validation:** Validates required device IDs and names, prevents duplicate device registration, and checks heartbeat timestamps and status fields.
+- **Automated Testing:** Includes tests for device registration, duplicate registration, heartbeat handling, device status, timeout detection, device listing, and fleet summary.
+
 ## Limitations
 
 - Device information is lost when the server restarts because persistent storage is not implemented.
 - The application does not use authentication or authorization.
 - The simulator and server must be running separately.
 - The application is intended as a small proof of concept and has not been optimized for large device fleets.
-- Heartbeat status values are accepted as strings rather than being restricted to a predefined set of values.
+- Heartbeat status values are accepted as non-empty strings rather than being restricted to a predefined set of values.
+- The server port is currently configured directly in the source code.
 
 ## Future Improvements
 
 - Add persistent storage using SQLite or PostgreSQL.
 - Introduce authentication and authorization for device registration and heartbeat requests.
-- Add input validation and more detailed error handling.
-- Build a dashboard to visualize device status and heartbeat history.
+- Restrict heartbeat status values to a predefined set and improve error handling.
 - Add structured logging and monitoring.
 - Support configurable heartbeat intervals and timeout thresholds.
 - Add integration tests for additional error cases and concurrent requests.
+- Add Docker support for easier setup and deployment.
+- Track heartbeat history and provide additional device monitoring metrics.
 
 ## AI Usage
 
 AI assistance was used to help understand the requirements, plan the application structure, develop parts of the implementation, troubleshoot errors, and organize the project documentation.
 
-The implementation and its behavior were tested locally, including device registration, heartbeat simulation, online/offline timeout handling, fleet summary, and automated tests.
+The implementation and its behavior were tested locally, including device registration, heartbeat simulation, online/offline timeout handling, fleet summary, dashboard functionality, and automated tests.
+
 
